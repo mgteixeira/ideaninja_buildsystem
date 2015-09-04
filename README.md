@@ -21,3 +21,5 @@ This build system uses Nodejs, NPM and Gulp with the following node modules that
  - gulp-robots
  - run-sequence
  - gulp-clean
+
+ To know more go to <a href="http://ideaninja.io/ideaninja-build-system-available.html" target="blank">here</a>

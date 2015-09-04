@@ -49,7 +49,8 @@ htmlSources = [outputDir + '*.html'];
 
 
 gulp.task('js', function() {
-  gulp.src(jsSources)
+  gulp.src(jsSources)    //keywords
+
     .pipe(concat('script.js'))
     .pipe(browserify())
     .on('error', gutil.log)
@@ -64,7 +65,7 @@ gulp.task('robots', function () {
         .pipe(robots({ 
           useragent: '*', 
           out: outputDir + 'robots.txt',
-          disallow: ['/contactus.html', '/images/']
+          disallow: ['/contactus.html']
           }))
 });
 
@@ -97,10 +98,15 @@ gulp.task('compass', function() {
 
 gulp.task('watch', function() {
   gulp.watch(jsSources, ['js']);
-  gulp.watch(['components/images/*/*.*','components/images/*/*/*.*'], ['images']);
+  gulp.watch(['components/images/**/*.*','components/images/**/**/*.*'] , ['images']);
   gulp.watch(['components/sass/*.scss', 'components/sass/*/*.scss'], ['compass']);
-  gulp.watch(outputDir +'*.html', ['sitemap', 'robots', 'html']);
-  gulp.watch('templates/*.ejs', ['ejs']);
+  gulp.watch(outputDir +'*.html', ['sitemap']);
+  gulp.watch(['templates/*.ejs','templates/partials/*.ejs'], function() {
+    runSequence(
+      ['ejs'],
+      'html');
+    }
+  );
 });
 
 gulp.task('connect', function() {
@@ -110,23 +116,24 @@ gulp.task('connect', function() {
   });
 });
 
-//compiles EJS
-gulp.task('ejs', function(){
-    return gulp.src("templates/*.ejs")
-    .pipe(ejs({
-          compileDebug: true,
-          client: true        
-      }))
-  .pipe(gulp.dest(outputDir))
-}); 
-
-
+//Reloads server and if production minifies 
 gulp.task('html', function() {
   return gulp.src(outputDir + '*.html')
     .pipe(gulpif(env === 'production', minifyHTML()))
     .pipe(gulpif(env === 'production', gulp.dest(outputDir)))
     .pipe(connect.reload())
 });
+
+//compiles EJS
+gulp.task('ejs', function(){
+    return gulp.src("templates/*.ejs")
+    .pipe(ejs({
+          compileDebug: true,
+          client: true    
+      }))
+  .pipe(gulp.dest(outputDir)); 
+}); 
+
 
 //create Sitemap
 
@@ -150,12 +157,11 @@ gulp.task('clean', function () {
         .pipe(clean({force: true}))
   });
 
-//gulp.task('default', ['watch', 'ejs', 'images','compass', 'move', 'robots', 'js', 'connect','html', 'sitemap']);
-
 gulp.task('default', function(callback) {
   runSequence('clean', 
               ['ejs', 'images','compass', 'move','js'],
-              ['robots','sitemap', 'connect','html'],
+              'html', 
+              ['robots','sitemap', 'connect'],
               'watch',
               callback);
 });
