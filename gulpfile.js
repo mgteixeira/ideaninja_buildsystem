@@ -61,11 +61,10 @@ gulp.task('js', function() {
 
 //creating robots.txt
 gulp.task('robots', function () {
-    gulp.src('builds/development/*.html')
+    gulp.src(outputDir + '*.html')
         .pipe(robots({ 
           useragent: '*', 
-          out: outputDir + 'robots.txt',
-          disallow: ['/contactus.html']
+          out: outputDir + 'robots.txt'
           }))
 });
 
